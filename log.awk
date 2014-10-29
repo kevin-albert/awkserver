@@ -1,11 +1,15 @@
-BEGIN {
+function initLogs() 
+{
     LogLevelError   = 2
     LogLevelInfo    = 1
     LogLevelDebug   = 0
     LogLevelAll     = -1
     LogLevel = LogLevelAll
 
-    enableLogColors()
+    if (noLogColors)
+        disableLogColors()
+    else
+        enableLogColors()
 
     _lvlStr[0] = "debug"
     _lvlStr[1] = "info"

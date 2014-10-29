@@ -1,5 +1,5 @@
 #
-# each route is a function that calls doResponse() or serveFile() or something
+# each route is a function that calls doResponse() or sendFile() or something
 # added to the routes table via addRoute()
 #
 END {
@@ -8,8 +8,8 @@ END {
 
 function home(Query)
 {
-    headers["Content-Type"] = "text/plain"
-    serveFile("static/index.html")
+    debug("sending home page")
+   sendFile("static/index.html")
 }
 
 function notFound(Query)

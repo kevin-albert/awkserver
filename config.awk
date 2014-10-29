@@ -1,4 +1,8 @@
+@include "log.awk"
+
 BEGIN {
+    initLogs()
+    LogLevel = LogLevelAll
     debug("reading config settings")
     FS = " "
 }
@@ -13,7 +17,7 @@ BEGIN {
 
 function parseVariable()
 {
-    debug($1 "=" $2)
+    debug("read config value: " $1 "=" $2)
     return $2
 }
 
