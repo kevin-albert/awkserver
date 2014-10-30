@@ -40,7 +40,7 @@ function listen()
             {
                 HttpService |& getline
             }
-            notFound(query)
+            notFound()
             close(HttpService)
             continue
         }
@@ -91,7 +91,7 @@ function listen()
             debug(method " " endpoint " -> " route)
         }
 
-        @route(query)
+        @route()
 
         close(HttpService)
 
@@ -222,12 +222,12 @@ function sendFile(file, headers)
     return 0
 }
 
-function notFound(Query)
+function notFound()
 {
     sendError("404", "you've come to the wong place")
 }
 
-function badRequest(Query)
+function badRequest()
 {
     sendError("400", "wat?!", headers)
 }
