@@ -72,7 +72,6 @@ function listen()
 
 
         # figure out how to handle
-        debug("routing")
         route = routes[method][endpoint]
 
         if (route) 
@@ -130,7 +129,6 @@ function write(line) {
 
 function doResponse(status, response, headers)
 {
-    debug("sending response")
     if (getHeader("content-length"))
     {
         debug("flushing request")
@@ -212,7 +210,7 @@ function sendFile(file, headers)
     }
     else 
     {
-        error("file not found: '" + file + "'")
+        #error("file not found: '"  file  "'")
     }
 
     return 0

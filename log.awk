@@ -83,3 +83,4 @@ function error(msg)
 {
     _log(msg, LogLevelError)
 }
+
