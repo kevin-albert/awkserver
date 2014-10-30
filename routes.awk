@@ -8,7 +8,7 @@ END {
     addRoute("GET", "/", "home")
 }
 
-function home(Query)
+function home()
 {
     sendFile("static/index.html")
 }
