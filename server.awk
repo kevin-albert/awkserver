@@ -1,7 +1,5 @@
 BEGIN {
     info("starting http server")
-    Port = 3000
-    StaticFiles = "static"
 }
 
 @include "log.awk"
@@ -14,7 +12,6 @@ END {
 
 function startHttpService()
 {
-    Client = "/inet/tcp/0/proxy/80"
     HttpService = "/inet/tcp/" Port "/0/0"
     info("http server listening on port " Port)
     RS = ORS = "\r\n"
@@ -28,14 +25,15 @@ function listen()
     {
         HttpService |& getline
 
-        method = $1
+        Method = $1
         urlPieces[1] = "/"
         split($2, urlPieces, "?")
-        endpoint = urlPieces[1]
-        contentLength = 0
-        if (!endpoint)
+        Endpoint = urlPieces[1]
+        ContentLength = 0
+        Body = ""
+        if (!Endpoint)
         {
-            error("wat? (" $0 ")")
+            error("wat? request: '" $0 "'") 
             while ($0) 
             {
                 HttpService |& getline
@@ -45,16 +43,16 @@ function listen()
             continue
         }
 
-        # parse query string
-        query = urlPieces[2]
-        if (query)
+        # parse Query string
+        Query = urlPieces[2]
+        if (Query)
         {
-            split(query, queryParts, "&")
+            split(Query, queryParts, "&")
             for (i in queryParts)
             {
                 split(queryParts[i], p, "=")
                 if (p[1])
-                    requestParams[p[1]] = p[2] ? p[2] : "true"
+                    RequestParams[p[1]] = 2 in p ? p[2] : "true"
             }
         }
 
@@ -64,41 +62,48 @@ function listen()
         {
             HttpService |& getline
             if ($1)
-                requestHeaders[tolower($1)] = $2
+                RequestHeaders[tolower($1)] = $2
         }
         FS=" "
-        contentLength = getHeader("content-length")
-        if (!contentLength) contentLength = 0
 
+        ContentLength = getHeader("content-length")
+        if (ContentLength)
+        {
+            RS = ".{" (ContentLength - 1) "}"
+            HttpService |& getline
+            Body = RT
+            RS = "\r\n"
+        }
 
         # figure out how to handle
-        route = routes[method][endpoint]
+        route = routes[Method][Endpoint]
 
         if (route) 
         {
-            debug(method " " endpoint " -> " route)
+            debug(Method " " Endpoint " -> " route)
         }
 
         # check for file
-        if (!route && method == "GET" && endpoint && shouldSendFile(endpoint) && sendFile(StaticFiles endpoint)) 
+        if (!route && Method == "GET" && Endpoint && shouldSendFile(Endpoint) && sendFile(StaticFiles Endpoint)) 
         {
-            debug("static: " endpoint)
+            debug("static: " Endpoint)
             route = "noop"
         }
         # default to 404
         if (!route) {
             route = "notFound"
-            debug(method " " endpoint " -> " route)
+            debug(Method " " Endpoint " -> " route)
         }
 
+        # call the routing function
         @route()
 
         close(HttpService)
 
-        for (i in requestParams)
-            delete requestParams[i]
-        for (i in requestHeaders)
-            delete requestHeaders[i]
+        for (i in RequestParams)
+            delete RequestParams[i]
+        for (i in RequestHeaders)
+            delete RequestHeaders[i]
         for (i in urlPieces)
             delete urlPieces[i]
     }
@@ -106,21 +111,17 @@ function listen()
 
 function getParam(name)
 {
-    return requestParams[name]
+    return RequestParams[name]
 }
 
 function getHeader(name)
 {
-    return requestHeaders[tolower(name)]
+    return RequestHeaders[tolower(name)]
 }
 
-function read() {
-    if (contentLength <= 0)
-        return
-
-    HttpService |& getline
-    contentLength -= length($0)
-    contentLength -= 2
+function getBody()
+{
+    return Body
 }
 
 function write(line) {
@@ -129,15 +130,6 @@ function write(line) {
 
 function doResponse(status, response, headers)
 {
-    if (getHeader("content-length"))
-    {
-        debug("flushing request")
-        while (read())
-        {
-            continue
-        }
-    }
-
     write("HTTP/1.0 " status)
     headers["Connection"] = "close"
     for (header in headers)
@@ -154,7 +146,7 @@ function doResponse(status, response, headers)
     }
 }
 
-function noop(query)
+function noop(Query)
 {
     # This request has been handled.
     # do nothing
@@ -244,10 +236,10 @@ function redirect(location)
     doResponse("303 redirect", "", headers)
 }
 
-function addRoute(method, endpoint, dest)
+function addRoute(Method, Endpoint, dest)
 {
-    info("adding route: " method " " endpoint " -> " dest)
-    routes[method][endpoint] = dest
+    info("adding route: " Method " " Endpoint " -> " dest)
+    routes[Method][Endpoint] = dest
 }
 
 

@@ -14,6 +14,8 @@ function initLogs()
     _lvlStr[0] = "debug"
     _lvlStr[1] = "info"
     _lvlStr[2] = "error"
+
+    debug("logging started")
 }
 
 function parseLogLevel(logLevelStr)

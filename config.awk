@@ -1,5 +1,3 @@
-@include "log.awk"
-
 BEGIN {
     initLogs()
     LogLevel = LogLevelAll
