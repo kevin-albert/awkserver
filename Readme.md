@@ -30,7 +30,7 @@ with common tasks:
 ### Accessing a request
 - `getHeader(name)` returns a header (name is case-insensitive)
 - `getParam(name)` returns a param from the url query
-- `getBody()` returns the request body
+- `getBody()` returns the request body, minus the last byte. Sorry, that's just the way it is :)
 
 ### Other functions
 - `getFile(filename)` returns the contents of a file
