@@ -165,9 +165,25 @@ function shouldSendFile(file)
     return !match(file, /\.\./)
 }
 
+function getFile(file)
+{
+    contents = ""
+    while (getline line < file > 0)
+    {
+        if (contents) contents = contents ORS
+        contents = contents line
+    }
+    if (contents)
+    {
+        close(file)
+    }
+    return contents
+}
+
 function sendFile(file, headers)
 {
-    if (getline line < file != -1)
+    contents = getFile(file)
+    if (contents)
     {
         contentType = "text/plain" 
         switch(file) {
@@ -199,18 +215,8 @@ function sendFile(file, headers)
         }
 
         headers["Content-Type"] = contentType
-        res = line
-
-        while (getline line < file > 0) 
-            res = res ORS line
-       
-        close(file)
-        doResponse("200 OK", res, headers)
+        doResponse("200 OK", contents, headers)
         return 1
-    }
-    else 
-    {
-        #error("file not found: '"  file  "'")
     }
 
     return 0
