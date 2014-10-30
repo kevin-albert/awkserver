@@ -25,6 +25,5 @@ function login()
         if (param[1] != "xxx")
             res = res param[1] ": " param[2] "\r\n"
     }
-    headers["content-type"] = "text/plain"
-    doResponse("200 OK", res, headers)
+    doResponse("200 OK", res)
 }
