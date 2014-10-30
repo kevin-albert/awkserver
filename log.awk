@@ -16,6 +16,23 @@ function initLogs()
     _lvlStr[2] = "error"
 }
 
+function parseLogLevel(logLevelStr)
+{
+    switch (logLevelStr)
+    {
+        case "Debug":
+            LogLevel = LogLevelDebug
+            break
+        case "Info":
+            LogLevel = LogLevelInfo
+            break
+        case "Error":
+            LogLevel = LogLevelError
+            break
+    }
+}
+
+
 function _log(msg, lvl) {
     if (lvl >= LogLevel) 
     {

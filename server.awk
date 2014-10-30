@@ -1,5 +1,7 @@
 BEGIN {
     info("starting http server")
+    Port = 3000
+    StaticFiles = "static"
 }
 
 @include "log.awk"
@@ -12,7 +14,6 @@ END {
 
 function startHttpService()
 {
-    if (!Port) Port = 3001
     Client = "/inet/tcp/0/proxy/80"
     HttpService = "/inet/tcp/" Port "/0/0"
     info("http server listening on port " Port)
@@ -80,7 +81,7 @@ function listen()
         }
 
         # check for file
-        if (!route && method == "GET" && endpoint && isInStatic(endpoint) && sendFile("static" endpoint)) 
+        if (!route && method == "GET" && endpoint && shouldSendFile(endpoint) && sendFile(StaticFiles endpoint)) 
         {
             debug("static: " endpoint)
             route = "noop"
@@ -142,7 +143,10 @@ function doResponse(status, response, headers)
     write("HTTP/1.0 " status)
     headers["Connection"] = "close"
     for (header in headers)
+    {
         write(header ": " headers[header])
+        delete headers[header]
+    }
 
     if (response)
     {
@@ -150,7 +154,6 @@ function doResponse(status, response, headers)
         write("")
         write(response)
     }
-
 }
 
 function noop(query)
@@ -159,14 +162,13 @@ function noop(query)
     # do nothing
 }
 
-function isInStatic(file)
+function shouldSendFile(file)
 {
     return !match(file, /\.\./)
 }
 
 function sendFile(file, headers)
 {
-    debug("sendFile(" file ")")
     if (getline line < file != -1)
     {
         contentType = "text/plain" 
@@ -215,3 +217,33 @@ function sendFile(file, headers)
 
     return 0
 }
+
+function notFound(Query)
+{
+    sendError("404", "you've come to the wong place")
+}
+
+function badRequest(Query)
+{
+    sendError("400", "wat?!", headers)
+}
+
+function sendError(code, status)
+{
+    headers["Connection"] = "close"
+    doResponse(code " " status, "", headers)
+}
+
+function redirect(location)
+{
+    headers["Location"] = location
+    doResponse("303 redirect", "", headers)
+}
+
+function addRoute(method, endpoint, dest)
+{
+    info("adding route: " method " " endpoint " -> " dest)
+    routes[method][endpoint] = dest
+}
+
+
