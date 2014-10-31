@@ -1,8 +1,47 @@
 #!/bin/bash
 
-cd $( dirname $BASH_SOURCE )
-gawk -f server.awk settings.conf
+isDaemon=true
+isColored=true
+arg=0
 
-# to disable colored logs, do
-#gawk -f server.awk -v noLogColors=true settings.conf
+while (( ++arg <= $# ))
+do
+    echo "parsing arg: ${!arg}"
+    case ${!arg} in
+        --help)
+            echo "usage: $BASH_SOURCE -Dm --help"
+            echo "-D: Do not start daemon process; run inline"
+            echo "-m: Monochrome - do not color log output"
+            exit -1
+            ;;
+        -D)
+            isDaemon=false
+            ;;
+        -m)
+            isColored=false
+            ;;
+        -Dm)
+            isDaemon=false
+            isColored=false
+            ;;
+        *) 
+            echo "usage: $BASH_SOURCE -Dm --help"
+            exit -1
+            ;;
+    esac
+done
+cd $( dirname $BASH_SOURCE )
+
+args="-f server.awk "
+$isColored || args="$args -v noLogColors=true"
+args="$args settings.conf"
+
+if ($isDaemon)
+then
+    gawk $args >awkserver.out 2>awkserver.err &
+    sleep 1
+    echo "server started. pid is $( cat awkserver.pid )"
+else
+    gawk $args
+fi
 

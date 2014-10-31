@@ -1,8 +1,9 @@
 BEGIN {
     info("starting http server")
-    print PROCFILE["pid"] > "awkserver.pid"
+    print PROCINFO["pid"] > "awkserver.pid"
     close("awkserver.pid")
 }
+
 
 @include "log.awk"
 @include "config.awk"

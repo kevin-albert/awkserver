@@ -67,7 +67,6 @@ function enableLogColors()
 
 function disableLogColors()
 {
-    printf(_X)
     _R=_Y=_G=_B=_r=_g=_b=_Gr=_gr=_P=_X=_lvlCol[0]=_lvlCol[1]=_lvlCol[2]=""
 }
 
