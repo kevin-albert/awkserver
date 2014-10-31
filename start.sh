@@ -6,7 +6,6 @@ arg=0
 
 while (( ++arg <= $# ))
 do
-    echo "parsing arg: ${!arg}"
     case ${!arg} in
         --help)
             echo "usage: $BASH_SOURCE -Dm --help"
@@ -20,7 +19,7 @@ do
         -m)
             isColored=false
             ;;
-        -Dm)
+        -Dm|-mD)
             isDaemon=false
             isColored=false
             ;;
