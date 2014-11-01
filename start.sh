@@ -29,9 +29,11 @@ do
             ;;
     esac
 done
+
+# cd to the current directory so that awk include paths work
 cd $( dirname $BASH_SOURCE )
 
-args="-f server.awk "
+args="-f src/main.awk "
 $isColored || args="$args -v noLogColors=true"
 args="$args settings.conf"
 

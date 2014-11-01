@@ -5,16 +5,16 @@
         <script type="test/javascript" src="/js/test.js"></script>
     </head>
     <body>
-        <div>
-            Hello
-        </div>
-        <form action="/login" method="post">
+        <p>Use the form below to file your complaint.</p>
+        <form action="/issue" method="post">
             <label for="name">name</label>
             <input type="text" name="name" />
             <br>
-            <label for="pass">password</label>
-            <input type="password" name="pass" />
-            <input type="hidden" name="xxx" value="0" />
+            <label for="email">email</label>
+            <input type="text" name="email" />
+            <br>
+            <label for="complaint">complaint</label>
+            <textarea name="complaint"></textarea>
             <br>
             <input type="submit" />
         </form>
