@@ -4,6 +4,7 @@ BEGIN {
     urlChars["22"] = "\""
     urlChars["23"] = "#"
     urlChars["24"] = "$"
+    urlChars["25"] = "%"
     urlChars["26"] = "&"
     urlChars["27"] = "'"
     urlChars["28"] = "("
