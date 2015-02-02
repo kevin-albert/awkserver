@@ -1,11 +1,4 @@
-BEGIN {
-    info("starting http server")
-    print PROCINFO["pid"] > "awkserver.pid"
-    close("awkserver.pid")
-}
-
 END {
-    close(FILENAME)
     startHttpService()
 }
 

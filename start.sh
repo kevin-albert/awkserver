@@ -37,11 +37,19 @@ args="-f src/main.awk "
 $isColored || args="$args -v noLogColors=true"
 args="$args settings.conf"
 
+# get pid location
+[ ! -s settings.conf ] && echo "settings.conf not found!" && exit -1
+
 if ($isDaemon)
 then
+    pid_dir=$( grep PidDirectory <$( dirname $BASH_SOURCE )/settings.conf | 
+               sed 's/PidDirectory[ \t]*//' | sed 's/\/$//' )
+    mkdir -p $pid_dir
+    pid_file=$pid_dir/awkserver.pid
+
     gawk $args >awkserver.out 2>awkserver.err &
     sleep 1
-    echo "server started. pid is $( cat awkserver.pid )"
+    echo "server started. pid is $( cat $pid_file )"
 else
     gawk $args
 fi

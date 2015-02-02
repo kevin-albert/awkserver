@@ -6,7 +6,7 @@ BEGIN {
     info("adding routes for sample app")
     addRoute("GET", "/", "home")
     addRoute("POST", "/issue", "issue")
-    info("sample app initialized. try it out at http://localhost:" Port)
+    addRoute("GET", "/random", "random")
 }
 
 function home()
@@ -26,3 +26,7 @@ function issue()
     setResponseBody("Thank you, " name ".\r\nThis issue has been filed.\r\nYour feedback is valuable.")
 }
 
+function random()
+{
+    runScript("./scripts/test.sh")
+}
