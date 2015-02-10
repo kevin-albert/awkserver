@@ -2,29 +2,34 @@
 
 isDaemon=true
 isColored=true
-arg=0
 
-while (( ++arg <= $# ))
+function print_help() {
+    echo "usage: $0 -Dmch"
+    echo "-D  Do not run as Daemon (logs will print to stdout)"
+    echo "-m  (monochrome) do not color log output"
+    echo "-c  (colored) color log output (default)"
+    echo "-h  (help) print this message"
+}
+
+while getopts ":Dmch" OPT
 do
-    case ${!arg} in
-        --help)
-            echo "usage: $BASH_SOURCE -Dm --help"
-            echo "-D: Do not start daemon process; run inline"
-            echo "-m: Monochrome - do not color log output"
-            exit -1
-            ;;
-        -D)
+    case $OPT in
+        D)
             isDaemon=false
             ;;
-        -m)
+        m)
             isColored=false
             ;;
-        -Dm|-mD)
-            isDaemon=false
-            isColored=false
+        c)
+            isColored=true
+            ;;
+        h)
+            print_help
+            exit -2
             ;;
         *) 
-            echo "usage: $BASH_SOURCE -Dm --help"
+            echo "unknown option: $OPTARG"
+            print_help
             exit -1
             ;;
     esac
