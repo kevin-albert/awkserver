@@ -6,7 +6,6 @@ BEGIN {
     info("adding routes for sample app")
     addRoute("GET", "/", "home")
     addRoute("POST", "/issue", "issue")
-    addRoute("GET", "/random", "random")
 }
 
 function home()
@@ -24,9 +23,4 @@ function issue()
     print complaint > issueDept
     close(issueDept)
     setResponseBody("Thank you, " name ".\r\nThis issue has been filed.\r\nYour feedback is valuable.")
-}
-
-function random()
-{
-    runScript("./scripts/test.sh")
 }
