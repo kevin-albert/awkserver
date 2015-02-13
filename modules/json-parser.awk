@@ -55,7 +55,7 @@ function parseJson(_jInput, _jOutputData, _jOutputKeys)
     _jNKeys = 0         # total number of keys
     _jHasRoot = 0       # ensure that we only parse one root object
     
-    _jSkipWhitespace()
+    while (match(_jData[_jIdx], /[ \t\r\n]/)) _jIdx++
 
     # Main loop
     while (_jIdx <= _jLen) 
