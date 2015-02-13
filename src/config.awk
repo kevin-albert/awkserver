@@ -1,51 +1,51 @@
 BEGIN {
-    initLogs()
-    LogLevel = LogLevelAll
+    _initLogs()
+    _LogLevel = LogLevelAll
     debug("reading config settings")
     FS = " "
 
-    Port = 3000
-    StaticFiles = "static"
-    PidDirectory = "/tmp/awkserver"
+    _port = 3000
+    _staticFiles = "static"
+    _pidDirectory = "/tmp/awkserver"
 }
 
 #
 # Read in config settings
 #
-/^Port/ {
+/^port/ {
     if (FILENAME)
-        Port = parseVariable()
+        _port = _parseVariable()
 }
 
-/^StaticFiles/ {
+/^staticFiles/ {
     if (FILENAME)
-        StaticFiles = parseVariable()
+        _staticFiles = _parseVariable()
 }
 
-/^Logging/ {
+/^logLevel/ {
     if (FILENAME)
-        parseLogLevel(parseVariable())
+        _parseLogLevel(_parseVariable())
 }
 
-/^PidDirectory/ {
+/^pidDirectory/ {
     if (FILENAME)
     {
-        PidFile = parseVariable()
-        if (!match(PidFile, /\/$/))
-            PidFile = PidFile "/"
-        PidFile = PidFile "awkserver.pid"
+        _pidFile = _parseVariable()
+        if (!match(_pidFile, /\/$/))
+            _pidFile = _pidFile "/"
+        _pidFile = _pidFile "awkserver.pid"
     }
 }
 
-function parseVariable()
+function _parseVariable()
 {
     #debug("read config value [" $1 "]: " $2)
     return $2
 }
 
 END {
-    pid=PROCINFO["pid"]
-    debug("pid is " pid)
-    print pid >PidFile
-    close(PidFile)
+    _pid=PROCINFO["pid"]
+    debug("pid is " _pid)
+    print _pid >_pidFile
+    close(_pidFile)
 }

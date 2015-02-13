@@ -1,193 +1,38 @@
 END {
-    startHttpService()
-}
-
-function startHttpService()
-{
-    HttpService = "/inet/tcp/" Port "/0/0"
-    info("http server listening on port " Port)
-    RS = ORS = "\r\n"
-
-    listen()
-}
-
-function listen()
-{
-    while (1)
-    {
-        # Loop until we have input
-        while ((HttpService |& getline) == -1 || !$0)
-        {
-            continue
-        }
-
-        Method = $1
-        urlPieces[1] = "/"
-        split($2, urlPieces, "?")
-        Endpoint = urlPieces[1]
-        ContentLength = 0
-        RequestBody = ""
-        HasFormData = 0
-        FormData["x"] = "x"
-        delete FormData
-        hasFormData = 0
-
-        ResponseStatus = "200 OK"
-        ResponseBody = ""
-        setResponseHeader("X-Powered-By", "awk")
-        setResponseHeader("Connection", "close")
-        setResponseHeader("Content-Type", "text/plain")
-
-        if (!Endpoint)
-        {
-            error("wat? '" $0 "'") 
-            while (!(HttpService |& getline) != -1) {}
-            close(HttpService)
-            continue
-        }
-
-        # Parse Query string
-        Query = urlPieces[2]
-        if (Query)
-        {
-            split(Query, queryParts, "&")
-            for (i in queryParts)
-            {
-                split(queryParts[i], p, "=")
-                if (p[1])
-                    RequestParams[urlDecode(p[1])] = 2 in p ? urlDecode(p[2]) : "true"
-            }
-        }
-
-        # Parse request headers
-        FS=": *"
-        while ($0)
-        {
-            HttpService |& getline
-            if ($1)
-                RequestHeaders[tolower($1)] = $2
-        }
-        FS=" "
-
-        # Read all but the last byte of the request body. This is due to how awk splits records - with an open http
-        # stream, there is not NULL byte at the end of the body, and we don't know what to use for RS because we don't
-        # know what the last character is. So, we set RS to ".{contentLength-1}" so it matches the first N-1 characters
-        # and lose the last byte.
-        ContentLength = getRequestHeader("content-length")
-        if (ContentLength)
-        {
-            RS = ".{" (ContentLength - 1) "}"
-            HttpService |& getline
-            RequestBody = RT
-            RS = "\r\n"
-        }
-
-
-        # Figure out how to handle this request
-        route = routes[Method][Endpoint]
-
-        if (route) 
-        {
-            debug(Method " " Endpoint " -> " route)
-        }
-
-        # Check for file
-        if (!route && Method == "GET" && Endpoint && shouldSendFile(Endpoint) && sendFile(StaticFiles Endpoint)) 
-        {
-            debug("static: " Endpoint)
-            route = "noop"
-        }
-        # Default to 404
-        if (!route) {
-            route = "notFound"
-            debug(Method " " Endpoint " -> " route)
-        }
-
-        # Call the routing function
-        @route()
-
-        # Write the response headers
-        writeToSocket("HTTP/1.0 " ResponseStatus)
-        for (header in ResponseHeaders)
-        {
-            writeToSocket(header ": " ResponseHeaders[header])
-        }
-    
-        # Write the response body
-        if (ResponseBody)
-        {
-            writeToSocket("Content-Length: " length(ResponseBody ORS))
-            writeToSocket("")
-            writeToSocket(ResponseBody)
-        }
-
-        # Close the socket and get ready for the next connection
-        close(HttpService)
-
-        # Clear these arrays for next time
-        delete RequestParams
-        delete RequestHeaders
-        delete urlPieces
-        delete ResponseHeaders
-    }
+    _startHttpService()
 }
 
 function getRequestParam(name)
 {
-    return RequestParams[name]
+    return _requestParams[name]
 }
 
 function getRequestHeader(name)
 {
-    return RequestHeaders[tolower(name)]
+    return _requestHeaders[tolower(name)]
 }
 
 function getRequestBody()
 {
-    return RequestBody
-}
-
-function parseForm()
-{
-    delete FormData
-    split(getRequestBody(), entries, "&")
-    for (i in entries)
-    {
-        split(entries[i], XX, "=")
-        FormData[urlDecode(XX[1])] = urlDecode(XX[2])
-    }
-}
-
-function getFormParam(name)
-{
-    if (!hasFormData)
-    {
-        parseForm()
-        hasFormData = 1
-    }
-    return FormData[name]
+    return _requestBody
 }
 
 function setResponseStatus(status)
 {
-    ResponseStatus = status
+    _responseStatus = status
 }
 
 function setResponseHeader(name, value)
 {
-    ResponseHeaders[name] = value
+    _responseHeaders[name] = value
 }
 
 function setResponseBody(body)
 {
-    ResponseBody = body
+    _responseBody = body
 }
 
-function writeToSocket(line) {
-    print line |& HttpService
-}
-
-function noop(Query)
+function noop(query)
 {
     # This request has been handled.
     # do nothing
@@ -200,56 +45,56 @@ function shouldSendFile(file)
 
 function getFile(file)
 {
-    contents = ""
+    _contents = ""
     while (getline line < file > 0)
     {
-        if (contents) contents = contents ORS
-        contents = contents line
+        if (_contents) _contents = contents ORS
+        _contents = _contents line
     }
-    if (contents)
+    if (_contents)
     {
         close(file)
     }
-    return contents
+    return _contents
 }
 
 function sendFile(file, headers)
 {
-    contents = getFile(file)
-    if (contents)
+    _contents = getFile(file)
+    if (_contents)
     {
-        contentType = "text/plain" 
+        _contentType = "text/plain" 
         switch(file) {
             case /\.html$/:
-                contentType = "text/html; charset=utf-8"
+                _contentType = "text/html; charset=utf-8"
                 break
             
             case /\.css$/:
-                contentType = "text/css"
+                _contentType = "text/css"
                 break
 
             case /\.js$/:
-                contentType = "application/javascript"
+                _contentType = "application/javascript"
                 break
 
             case /\.jpg$/:
             case /\.jpeg$/:
-                contentType = "image/jpeg"
+                _contentType = "image/jpeg"
                 break
             
             case /\.png$/:
-                contentType = "image/png"
+                _contentType = "image/png"
                 break
 
             case /\.gif$/:
-                contentType = "image/gif"
+                _contentType = "image/gif"
                 break
         
         }
 
         setResponseHeader("Pragma", "no-cache")
-        setResponseHeader("Content-Type", contentType)
-        setResponseBody(contents)
+        setResponseHeader("Content-Type", _contentType)
+        setResponseBody(_contents)
         return 1
     }
 
@@ -277,10 +122,146 @@ function redirect(location)
     setResponseStatus("303 redirect")
 }
 
-function addRoute(Method, Endpoint, dest)
+function addRoute(method, endpoint, dest)
 {
-    info("adding route: " Method " " Endpoint " -> " dest)
-    routes[Method][Endpoint] = dest
+    info("adding route: " method " " endpoint " -> " dest)
+    _routes[method][endpoint] = dest
 }
 
+
+#
+# Actual server code
+#
+function _startHttpService()
+{
+    _httpService = "/inet/tcp/" _port "/0/0"
+    info("http server listening on port " _port)
+    RS = ORS = "\r\n"
+
+    _listen()
+}
+
+#
+# This is where it gets tricky
+#
+function _listen()
+{
+    while (1)
+    {
+        # Loop until we have input
+        while ((_httpService |& getline) == -1 || !$0)
+        {
+            continue
+        }
+
+        _method = $1
+        _urlPieces[1] = "/"
+        split($2, _urlPieces, "?")
+        _endpoint = _urlPieces[1]
+        _contentLength = 0
+        _requestBody = ""
+
+        _responseStatus = "200 OK"
+        _responseBody = ""
+        setResponseHeader("X-Powered-By", "awk")
+        setResponseHeader("Connection", "close")
+        setResponseHeader("Content-Type", "text/plain")
+
+        if (!_endpoint)
+        {
+            error("wat? '" $0 "'") 
+            while (!(_httpService |& getline) != -1) {}
+            close(_httpService)
+            continue
+        }
+
+        # Parse query string
+        _query = _urlPieces[2]
+        if (_query)
+        {
+            split(_query, _queryParts, "&")
+            for (i in _queryParts)
+            {
+                split(_queryParts[i], p, "=")
+                if (p[1])
+                    _requestParams[urlDecode(p[1])] = 2 in p ? urlDecode(p[2]) : "true"
+            }
+        }
+
+        # Parse request headers
+        FS=": *"
+        while ($0)
+        {
+            _httpService |& getline
+            if ($1)
+                _requestHeaders[tolower($1)] = $2
+        }
+        FS=" "
+
+        # Read all but the last byte of the request body. This is due to how awk splits records - with an open http
+        # stream, there is not NULL byte at the end of the body, and we don't know what to use for RS because we don't
+        # know what the last character is. So, we set RS to ".{contentLength-1}" so it matches the first N-1 characters
+        # and lose the last byte.
+        _contentLength = getRequestHeader("content-length")
+        if (_contentLength)
+        {
+            RS = ".{" (_contentLength - 1) "}"
+            _httpService |& getline
+            _requestBody = RT
+            RS = "\r\n"
+        }
+
+
+        # Figure out how to handle this request
+        _route = _routes[_method][_endpoint]
+
+        if (_route) 
+        {
+            debug(_method " " _endpoint " -> " _route)
+        }
+
+        # Check for file
+        if (!_route && _method == "GET" && _endpoint && shouldSendFile(_endpoint) && sendFile(_staticFiles _endpoint)) 
+        {
+            debug("static: " _endpoint)
+            _route = "noop"
+        }
+        # Default to 404
+        if (!_route) {
+            _route = "notFound"
+            debug(_method " " _endpoint " -> " route)
+        }
+
+        # Call the routing function
+        @_route()
+
+        # Write the response headers
+        _writeToSocket("HTTP/1.0 " _responseStatus)
+        for (_header in _responseHeaders)
+        {
+            _writeToSocket(_header ": " _responseHeaders[header])
+        }
+    
+        # Write the response body
+        if (_responseBody)
+        {
+            _writeToSocket("Content-Length: " length(_responseBody ORS))
+            _writeToSocket("")
+            _writeToSocket(_responseBody)
+        }
+
+        # Close the socket and get ready for the next connection
+        close(_httpService)
+
+        # Clear these arrays for next time
+        delete _requestParams
+        delete _requestHeaders
+        delete _urlPieces
+        delete _responseHeaders
+    }
+}
+
+function _writeToSocket(line) {
+    print line |& _httpService
+}
 
