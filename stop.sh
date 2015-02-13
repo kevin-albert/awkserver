@@ -1,15 +1,15 @@
 #!/bin/bash
 
-pid_file=$( grep PidDirectory <$( dirname $BASH_SOURCE )/settings.conf | 
-            sed 's/PidDirectory[ \t]*//' | sed 's/\/$//' )/awkserver.pid
+pidFile=$( grep pidDirectory <$( dirname $BASH_SOURCE )/settings.conf | 
+            sed 's/pidDirectory[ \t]*//' | sed 's/\/$//' )/awkserver.pid
 
-if [ -s $pid_file ]
+if [ -s $pidFile ]
 then
-    pid=$( cat $pid_file )
+    pid=$( cat $pidFile )
     echo "killing $pid"
     kill $pid
-    rm $pid_file
+    rm $pidFile
 else
-    echo "nothing to stop ($pid_file not found)"
+    echo "nothing to stop ($pidFile not found)"
     exit -1
 fi
