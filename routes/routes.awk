@@ -7,6 +7,8 @@ BEGIN {
     info("loading routes")
 }
 
+@include "routes/defaults.awk"
+
 # Sample app
 @include "routes/issues.awk"
 

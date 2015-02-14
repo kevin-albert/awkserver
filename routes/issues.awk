@@ -26,3 +26,4 @@ function issue()
     delete issueForm
     setResponseBody("Thank you, " name ".\r\nThis issue has been filed.\r\nYour feedback is valuable.")
 }
+

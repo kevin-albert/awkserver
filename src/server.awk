@@ -1,137 +1,12 @@
+#
+# Actual server code
+# Starts an infinite loop listening for incoming requests
+# To handle requests, add a route (see /routes/routes.awk)
+#
 END {
     _startHttpService()
 }
 
-function getRequestParam(name)
-{
-    return _requestParams[name]
-}
-
-function getRequestHeader(name)
-{
-    return _requestHeaders[tolower(name)]
-}
-
-function getRequestBody()
-{
-    return _requestBody
-}
-
-function setResponseStatus(status)
-{
-    _responseStatus = status
-}
-
-function setResponseHeader(name, value)
-{
-    _responseHeaders[name] = value
-}
-
-function setResponseBody(body)
-{
-    _responseBody = body
-}
-
-function noop(query)
-{
-    # This request has been handled.
-    # do nothing
-}
-
-function shouldSendFile(file)
-{
-    return !match(file, /\.\./)
-}
-
-function getFile(file)
-{
-    _contents = ""
-    while (getline line < file > 0)
-    {
-        if (_contents) _contents = contents ORS
-        _contents = _contents line
-    }
-    if (_contents)
-    {
-        close(file)
-    }
-    return _contents
-}
-
-function sendFile(file, headers)
-{
-    _contents = getFile(file)
-    if (_contents)
-    {
-        _contentType = "text/plain" 
-        switch(file) {
-            case /\.html$/:
-                _contentType = "text/html; charset=utf-8"
-                break
-            
-            case /\.css$/:
-                _contentType = "text/css"
-                break
-
-            case /\.js$/:
-                _contentType = "application/javascript"
-                break
-
-            case /\.jpg$/:
-            case /\.jpeg$/:
-                _contentType = "image/jpeg"
-                break
-            
-            case /\.png$/:
-                _contentType = "image/png"
-                break
-
-            case /\.gif$/:
-                _contentType = "image/gif"
-                break
-        
-        }
-
-        setResponseHeader("Pragma", "no-cache")
-        setResponseHeader("Content-Type", _contentType)
-        setResponseBody(_contents)
-        return 1
-    }
-
-    return 0
-}
-
-function notFound()
-{
-    sendError("404", "you've come to the wong place")
-}
-
-function badRequest()
-{
-    sendError("400", "wat?!")
-}
-
-function sendError(code, status)
-{
-    setResponseStatus(code " " status)
-}
-
-function redirect(location)
-{
-    setResponseHeader("Location", location)
-    setResponseStatus("303 redirect")
-}
-
-function addRoute(method, endpoint, dest)
-{
-    info("adding route: " method " " endpoint " -> " dest)
-    _routes[method][endpoint] = dest
-}
-
-
-#
-# Actual server code
-#
 function _startHttpService()
 {
     _httpService = "/inet/tcp/" _port "/0/0"
@@ -229,7 +104,7 @@ function _listen()
         # Default to 404
         if (!_route) {
             _route = "notFound"
-            debug(_method " " _endpoint " -> " route)
+            debug(_method " " _endpoint " -> " _route)
         }
 
         # Call the routing function
@@ -248,6 +123,11 @@ function _listen()
             _writeToSocket("Content-Length: " length(_responseBody ORS))
             _writeToSocket("")
             _writeToSocket(_responseBody)
+        }
+        else {
+            _writeToSocket("Content-Length: 0" ORS)
+            _writeToSocket("")
+            #_writeToSocket("")
         }
 
         # Close the socket and get ready for the next connection

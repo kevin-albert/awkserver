@@ -1,3 +1,161 @@
+#
+# Exposes functions for handling an incoming request and sending a response
+#
+
+function getRequestParam(name)
+{
+    return _requestParams[name]
+}
+
+function getRequestHeader(name)
+{
+    return _requestHeaders[tolower(name)]
+}
+
+function getRequestBody()
+{
+    return _requestBody
+}
+
+function getRequestEndpoint() {
+    return _endpoint
+}
+
+function setResponseStatus(status)
+{
+    _responseStatus = status
+}
+
+function setResponseHeader(name, value)
+{
+    _responseHeaders[name] = value
+}
+
+function setResponseBody(body)
+{
+    _responseBody = body
+}
+
+function noop(query)
+{
+    # This request has been handled.
+    # do nothing
+}
+
+function shouldSendFile(file)
+{
+    return !match(file, /\.\./)
+}
+
+function getFile(file)
+{
+    _contents = ""
+    while (getline line < file > 0)
+    {
+        if (_contents) _contents = contents ORS
+        _contents = _contents line
+    }
+
+    close(file)
+    return _contents
+}
+
+function sendFile(file, headers)
+{
+    _contents = getFile(file)
+    if (_contents)
+    {
+        _contentType = "text/plain" 
+        switch(file) {
+            case /\.html$/:
+                _contentType = "text/html; charset=utf-8"
+                break
+            
+            case /\.css$/:
+                _contentType = "text/css"
+                break
+
+            case /\.js$/:
+                _contentType = "application/javascript"
+                break
+
+            case /\.jpg$/:
+            case /\.jpeg$/:
+                _contentType = "image/jpeg"
+                break
+            
+            case /\.png$/:
+                _contentType = "image/png"
+                break
+
+            case /\.gif$/:
+                _contentType = "image/gif"
+                break
+        
+        }
+
+        setResponseHeader("Pragma", "no-cache")
+        setResponseHeader("Content-Type", _contentType)
+        setResponseBody(_contents)
+        return 1
+    }
+
+    return 0
+}
+
+function addRoute(method, endpoint, dest)
+{
+    info("adding route: " method " " endpoint " -> " dest)
+    _routes[method][endpoint] = dest
+}
+
+function urlDecode(text)
+{
+    if (!text)
+        return ""
+    _uDecoded = ""
+    split(text, _uParts, "+")
+    for (_uI in _uParts)
+    {
+        if (_uI > 1)
+            _uDecoded = _uDecoded " "
+
+        split(_uParts[_uI], _uSubParts, "%")
+        for (_uJ in _uSubParts)
+        {
+            if (_uJ > 1)
+            {
+                _uCode = substr(_uSubParts[_uJ], 0, 2)
+                _uReplacement = _uCode in _uUrlChars ? _uUrlChars[_uCode] : "?"
+                sub("^" _uCode, _uReplacement, _uSubParts[_uJ])
+            }
+            _uDecoded = _uDecoded _uSubParts[_uJ]
+        }
+
+    }
+    return _uDecoded
+}
+
+function urlEncode(text) {
+    
+    if (!text)
+        return ""
+
+    _uEncoded = ""
+    split(text, _uParts, "")
+    for (_uI in _uParts) 
+    {
+        _uC = _uUrlCharsReverse[_uParts[_uI]]
+        if (!_uC) _uC = _uParts[_uI]
+        _uEncoded = _uEncoded _uC
+    }
+
+    return _uEncoded
+}
+
+#
+# URL encoding / decoding
+#
 BEGIN {
     _uUrlChars["20"] = " "
     _uUrlChars["21"] = "!"
@@ -221,32 +379,14 @@ BEGIN {
     _uUrlChars["FD"] = "ý"
     _uUrlChars["FE"] = "þ"
     _uUrlChars["FF"] = "ÿ"
-}
 
-function urlDecode(_uQuery)
-{
-    if (!_uQuery)
-        return ""
-    _uDecoded = ""
-    split(_uQuery, _uParts, "+")
-    for (i in _uParts)
+    for (_uCode in _uUrlChars) 
     {
-        if (i > 1)
-            _uDecoded = _uDecoded " "
-
-        split(_uParts[i], _uSubParts, "%")
-        for (j in _uSubParts)
+        if (!match(_uUrlChars[_uCode], /[a-zA-Z0-9]/))
         {
-            if (j > 1)
-            {
-                _uCode = substr(_uSubParts[j], 0, 2)
-                _uReplacement = _uCode in _uUrlChars ? _uUrlChars[code] : "?"
-                sub("^" _uCode, _uReplacement, _uSubParts[j])
-            }
-            _uDecoded = _uDecoded _uSubParts[j]
+            _uUrlCharsReverse[_uUrlChars[_uCode]] = _uCode
         }
-
     }
-    return _uDecoded
+    _uUrlChars[" "] = "+"
 }
 

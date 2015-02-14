@@ -13,7 +13,7 @@
 
 @include "src/log.awk"
 @include "src/config.awk"
-@include "src/util.awk"
+@include "src/core.awk"
 @include "src/server.awk"
 @include "modules/modules.awk"
 @include "routes/routes.awk"
