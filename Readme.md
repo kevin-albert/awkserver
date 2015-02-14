@@ -1,7 +1,7 @@
 # awkserver
 ## A minimal HTTP server that runs in `gawk`
 Uses TCP files provided by gawk to implement a basic server that responds to HTTP request, serves files,
-and routes requests to user defined functions. Create `routes.awk` like:
+and routes requests to user defined functions. Create `hello.awk` like:
 ```awk
 #
 # hello.awk
@@ -33,6 +33,7 @@ This just sends a plain text response "Hello!". To accomplish more, look at the 
 - `notFound()` returns a 404
 - `badRequest()` returns a 400
 - `redirect(location)` sends a redirect
+- `addRoute(method, endpoint, callback)` when `endpoint` is called with the given method, then `callback()` is invoked with no parameters. Only one callback function per method/endpoint pair.
 
 All routing functions are in `src/core.awk`
 
@@ -46,10 +47,10 @@ All request functions are also in `src/core.awk`
 
 ### Other functions
 - `getFile(filename)` returns the contents of a file (`src/core.awk`)
-- `parseJson(input, mapRef, keysRef)` parses the contents of a JSON string (`modules/json-parser`)
 - `info(msg)`, `error(msg)`, `debug(msg)` print formatted logs (`src/log.awk`)
 - `setStaticDirectory(dir)` choose the directory to serve static files from. defaults to "static" (`src/config.awk`)
 - `setLogLevel(level)` set the log level ("debug", "info", "error") (`src/log.awk`)
+- NEW! `parseJson(input, mapRef, keysRef)` parses the contents of a JSON string (`modules/json-parser.awk`)
 
 ## How it works
 The function `startAwkServer(port)` begins an infinite loop serving all incoming requests on a single thread. Requests are handled by:
