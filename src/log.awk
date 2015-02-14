@@ -4,7 +4,10 @@ function _initLogs()
     LogLevelInfo    = 1
     LogLevelDebug   = 0
     LogLevelAll     = -1
-    LogLevel = LogLevelAll
+    if (!_logLevel)
+    {
+        _logLevel = LogLevelAll
+    }
 
     "which tput" | getline _TPut
     close("which tput")
@@ -21,25 +24,33 @@ function _initLogs()
     debug("logging started")
 }
 
-function _parseLogLevel(logLevelStr)
+function _parseLogLevel(logLevel)
 {
-    switch (logLevelStr)
+    if (logLevel + 0 > 0)
     {
-        case "Debug":
-            LogLevel = LogLevelDebug
+        _logLevel = logLevel
+        return 0
+    }
+    toupper(logLevel)
+    switch (logLevel)
+    {
+        case "DEBUG":
+            _logLevel = LogLevelDebug
             break
-        case "Info":
-            LogLevel = LogLevelInfo
+        case "INFO":
+            _logLevel = LogLevelInfo
             break
-        case "Error":
-            LogLevel = LogLevelError
+        case "ERROR":
+            _logLevel = LogLevelError
             break
+        default:
+            return "unknown log level: " logLevel
     }
 }
 
 
 function _log(msg, lvl) {
-    if (lvl >= LogLevel) 
+    if (lvl >= _logLevel) 
     {
         printf(_g "[" _lvlCol[lvl] _lvlStr[lvl] _g "]")
         
@@ -94,4 +105,7 @@ function error(msg)
 {
     _log(msg, LogLevelError)
 }
+
+# maybe add more? trace(), warn(), critcal(), etc...
+
 

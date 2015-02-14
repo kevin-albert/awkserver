@@ -1,51 +1,32 @@
-BEGIN {
-    _initLogs()
-    _LogLevel = LogLevelAll
-    debug("reading config settings")
-    FS = " "
-
-    _port = 3000
-    _staticFiles = "static"
-    _pidDirectory = "/tmp/awkserver"
-}
-
 #
-# Read in config settings
+# Configuration functions
+# These are meant to be exposed to users to configure their server in code.
 #
-/^port/ {
-    if (FILENAME)
-        _port = _parseVariable()
+function setStaticDirectory(dir)
+{
+    debug("static files directory set to " dir)
+    _staticFiles = dir
 }
 
-/^staticFiles/ {
-    if (FILENAME)
-        _staticFiles = _parseVariable()
-}
-
-/^logLevel/ {
-    if (FILENAME)
-        _parseLogLevel(_parseVariable())
-}
-
-/^pidDirectory/ {
-    if (FILENAME)
+function setLogLevel(level)
+{
+    info("setting log level to " level)
+    err = _parseLogLevel(level)
+    if (err)
     {
-        _pidFile = _parseVariable()
-        if (!match(_pidFile, /\/$/))
-            _pidFile = _pidFile "/"
-        _pidFile = _pidFile "awkserver.pid"
+        error(err)
     }
 }
-
-function _parseVariable()
+    
+# this gets called when the server starts
+function _initConfig() 
 {
-    #debug("read config value [" $1 "]: " $2)
-    return $2
-}
+    if (!_staticFiles) _staticFiles = "static"
+    info("serving static files from '" _staticFiles "'")
 
-END {
     _pid=PROCINFO["pid"]
     debug("pid is " _pid)
-    print _pid >_pidFile
-    close(_pidFile)
+    print _pid >"awkserver.pid"
+    close("awkserver.pid")
 }
+

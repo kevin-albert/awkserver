@@ -3,12 +3,11 @@
 # Starts an infinite loop listening for incoming requests
 # To handle requests, add a route (see /routes/routes.awk)
 #
-END {
-    _startHttpService()
-}
 
-function _startHttpService()
+function startAwkServer(port)
 {
+    _port = port
+    _initConfig()
     _httpService = "/inet/tcp/" _port "/0/0"
     info("http server listening on port " _port)
     RS = ORS = "\r\n"
@@ -96,7 +95,8 @@ function _listen()
         }
 
         # Check for file
-        if (!_route && _method == "GET" && _endpoint && shouldSendFile(_endpoint) && sendFile(_staticFiles _endpoint)) 
+        if (!_route && _method == "GET" && _endpoint && _fileInStaticDirectory(_endpoint) && 
+            sendFile(_staticFiles _endpoint)) 
         {
             debug("static: " _endpoint)
             _route = "noop"
@@ -143,5 +143,26 @@ function _listen()
 
 function _writeToSocket(line) {
     print line |& _httpService
+}
+
+#
+# A security check for static file routing
+#
+function _fileInStaticDirectory(file)
+{
+    split(file, _fPath, "/")
+    _fIsInStatic = 1
+    _fDepth = 0
+    for (_fI in _fPath)
+    {
+        if (_fPath[_fI] == "..") _fDepth--
+        else (_fDepth++)
+        if (_fDepth < 0)
+        {
+            error("request for unauthorized file: " file)
+            return 0
+        }
+    }
+    return 1
 }
 

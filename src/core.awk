@@ -2,64 +2,64 @@
 # Exposes functions for handling an incoming request and sending a response
 #
 
+#
+# Get a query parameters by its name
+#
 function getRequestParam(name)
 {
     return _requestParams[name]
 }
 
+# 
+# Get a request header by its name (case-insensitive)
+#
 function getRequestHeader(name)
 {
     return _requestHeaders[tolower(name)]
 }
 
+#
+# Get the incoming request contents
+#
 function getRequestBody()
 {
     return _requestBody
 }
 
+#
+# Get the incoming request endpoint
+#
 function getRequestEndpoint() {
     return _endpoint
 }
 
+#
+# Set the outgoing response status
+#
 function setResponseStatus(status)
 {
     _responseStatus = status
 }
 
+#
+# Set an outgoing response header
+#
 function setResponseHeader(name, value)
 {
     _responseHeaders[name] = value
 }
 
+#
+# Set the outgoing response body
+#
 function setResponseBody(body)
 {
     _responseBody = body
 }
 
-function noop(query)
-{
-    # This request has been handled.
-    # do nothing
-}
-
-function shouldSendFile(file)
-{
-    return !match(file, /\.\./)
-}
-
-function getFile(file)
-{
-    _contents = ""
-    while (getline line < file > 0)
-    {
-        if (_contents) _contents = contents ORS
-        _contents = _contents line
-    }
-
-    close(file)
-    return _contents
-}
-
+#
+# Send a file as the outgoing response. This function guesses the content type based on the file extension
+#
 function sendFile(file, headers)
 {
     _contents = getFile(file)
@@ -101,6 +101,19 @@ function sendFile(file, headers)
     }
 
     return 0
+}
+
+function getFile(file)
+{
+    _contents = ""
+    while (getline line < file > 0)
+    {
+        if (_contents) _contents = contents ORS
+        _contents = _contents line
+    }
+
+    close(file)
+    return _contents
 }
 
 function addRoute(method, endpoint, dest)
@@ -146,12 +159,19 @@ function urlEncode(text) {
     for (_uI in _uParts) 
     {
         _uC = _uUrlCharsReverse[_uParts[_uI]]
-        if (!_uC) _uC = _uParts[_uI]
+        if (_uC)
+        {
+            if (_uC != "+") _uC = "%" _uC
+        }
+        else {
+            _uC = _uParts[_uI]
+        }
         _uEncoded = _uEncoded _uC
     }
 
     return _uEncoded
 }
+
 
 #
 # URL encoding / decoding

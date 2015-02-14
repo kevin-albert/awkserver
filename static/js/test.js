@@ -1,3 +1,1 @@
-window.onload = function() {
-    alert('hello')
-}
+console.log("haz compile?")
