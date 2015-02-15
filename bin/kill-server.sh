@@ -1,7 +1,7 @@
 #!/bin/bash
 # kill the locally running instance of awkserver
 
-pidFile=awkserver.pid
+pidFile=$(dirname $BASH_SOURCE)/../awkserver.pid
 
 if [ -s $pidFile ]
 then
