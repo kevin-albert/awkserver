@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Obfuscate My Sentence</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, user-scalable=no" />
+        <link rel="icon" href="favicon.ico" type="image/x-icon" />
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,400' rel='stylesheet' type='text/css'>
+        <link rel="stylesheet" href="style.css" />
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.23/angular.min.js"></script>
+        <script src="number.js"></script>
+    </head>
+
+    <body ng-app="Obfuscate">
+        <div class="main" ng-controller="TheController">
+            <div class="in">
+                <input type="text" name="input" ng-model="in" ng-change="translate()" />
+                <div class="x" ng-click="(in='') || translate()" ng-show="in">x</div>
+                <br />
+                <div class="example" ng-show="!in" ng-click="(in = example) && translate()">example: <q>{{example}}</q></div>
+            </div>
+            <div class="out">
+                <div ng-repeat="answer in out track by $index">
+                    {{answer}}
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

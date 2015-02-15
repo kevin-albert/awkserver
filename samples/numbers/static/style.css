@@ -1,0 +1,88 @@
+/* reset */
+html, body, div, span, h1, h2, h3, h4, h5, h6, p { 
+    margin: 0; 
+    padding: 0; 
+    border: 0; 
+    font-size: 100%; 
+    font: inherit; 
+    vertical-align: baseline; 
+}
+
+body {
+    text-align: center;
+    font: 18px Open Sans, sans-serif;
+    line-height: 1;
+    color: #333;
+    padding: 0 24px 0 10px;
+}
+
+.main {
+    margin: 60px auto;
+    width: 100%;
+    max-width: 640px;
+}
+
+.in {
+    font-size: 26px;
+    font-weight: 300;
+}
+
+input[type="text"] {
+    font-size: 18px;
+    height: 30px;
+    padding-left: 8px;
+    width: 100%;
+}
+
+.x {
+    opacity: 1;
+    color: #a8a8a8;
+    cursor: pointer;
+    position: relative;
+    left: 5px;
+    float: right;
+    top: -34px;
+    -webkit-transition: all 0.5s;
+    transition: all 0.5s;
+}
+
+.x:hover {
+    color: #f6f;
+}
+
+.out {
+    margin-top: 40px;
+    text-align: left;
+}
+
+.out div {
+    padding: 4px;
+    -webkit-transition: all 0.5s;
+    transition: all 0.5s;
+}
+
+.out div:hover {
+    color: #f6f;
+    padding-left: 0px;
+}
+
+.example {
+    margin-top: 40px;
+    font-size: 16px;
+    opacity: 1;
+    color: #a8a8a8;
+    -webkit-transition: all 0.5s;
+    transition: all 0.5s;
+    cursor: pointer;
+}
+
+.example.ng-hide {
+    opacity: 0px;
+}
+
+q {
+    font-style: italic;
+}
+
+.loading {
+}

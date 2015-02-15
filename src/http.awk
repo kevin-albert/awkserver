@@ -95,11 +95,25 @@ function _listen()
         }
 
         # Check for file
-        if (!_route && _method == "GET" && _endpoint && _fileInStaticDirectory(_endpoint) && 
-            sendFile(_staticFiles _endpoint)) 
+        if (!_route && _method == "GET" && _endpoint)
         {
-            debug("static: " _endpoint)
-            _route = "noop"
+            if (_fileInStaticDirectory(_endpoint)) 
+            {
+                if (sendFile(_staticFiles _endpoint)) 
+                {
+                    debug("static: " _endpoint)
+                    _route = "noop"
+                }
+                else {
+                    debug("file not found: " _endpoint)
+                }
+            }
+            else {
+                # They tried to request a file outside the static resources directory by putting '../'s in the path
+                _route = "noop"
+                sendError(403, "access to " _endpoint " is not allowed")
+                debug("block unauthorized access to: " _endpoint)
+            }
         }
         # Default to 404
         if (!_route) {

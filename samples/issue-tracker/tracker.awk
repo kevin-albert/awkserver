@@ -1,6 +1,6 @@
 #
 # Sample ticketing / management system
-# usage: gawk -f example.awk
+# usage: cd ../../ && gawk -f samples/issue-tracker/tracker.awk
 #
 
 @include "src/awkserver.awk"
@@ -8,7 +8,7 @@
 
 function home()
 {
-    sendFile("static/index.html")
+    sendFile("samples/issue-tracker/static/index.html")
 }
 
 function handleComplaint()
@@ -33,5 +33,6 @@ BEGIN {
     info("adding routes for sample app")
     addRoute("GET", "/", "home")
     addRoute("POST", "/complain", "handleComplaint")
+    setStaticDirectory("samples/issue-tracker/static")
     startAwkServer("3001")
 }
