@@ -50,7 +50,7 @@ All request functions are also in `src/core.awk`
 - `info(msg)`, `error(msg)`, `debug(msg)` print formatted logs (`src/log.awk`)
 - `setStaticDirectory(dir)` choose the directory to serve static files from. defaults to "static" (`src/config.awk`)
 - `setLogLevel(level)` set the log level ("debug", "info", "error") (`src/log.awk`)
-- NEW! `parseJson(input, mapRef, keysRef)` parses the contents of a JSON string (`modules/json-parser.awk`)
+- **NEW!** `parseJson(input, mapRef, keysRef)` parses the contents of a JSON string (`modules/json-parser.awk`)
 
 ## How it works
 The function `startAwkServer(port)` begins an infinite loop serving all incoming requests on a single thread. Requests are handled by:
