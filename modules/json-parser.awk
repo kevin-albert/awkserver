@@ -134,6 +134,10 @@ function parseJson(_jInput, _jOutputData, _jOutputKeys)
                     
                     case "{":
                         _jIsKey = 0
+                        if (_jTypes[_jSP] == "array")
+                        {
+                            _jKeys[_jSP] = _jIndices[_jSP] "]"
+                        }
                         _jPushStack("object")
                         _jSkipWhitespace()
                         break
@@ -147,11 +151,16 @@ function parseJson(_jInput, _jOutputData, _jOutputKeys)
                         if (_jData[_jIdx+1] == ",") 
                             _jIdx++
 
+                        _jIndices[_jSP]++
                         _jSkipWhitespace()
                         break
 
                    case "[":
                         _jIsKey = 0
+                        if (_jTypes[_jSP] == "array")
+                        {
+                            _jKeys[_jSP] = _jIndices[_jSP] "]"
+                        }
                         _jPushStack("array")
                         _jPushStack("array")
                         _jSkipWhitespace()
@@ -170,6 +179,7 @@ function parseJson(_jInput, _jOutputData, _jOutputKeys)
                         if (_jData[_jIdx+1] == ",") 
                             _jIdx++
 
+                        _jIndices[_jSP]++
                         _jSkipWhitespace()
                         break
 
