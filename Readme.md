@@ -51,17 +51,20 @@ All request functions are also in `src/core.awk`
 - `setLogLevel(level)` set the log level ("debug", "info", "error") (`src/log.awk`)
 - **NEW!** `parseJson(input, mapRef, keysRef)` parses the contents of a JSON string (`modules/json-parser.awk`)
 
+## Purpose
+This goal of this project is to provide users with the ability to bring up a very basic HTTP server with minimal effort. It does not do templating, security, or encryption, and no matter what you do the last character of every incoming request body will be dropped (due to how awk splits records). You have been warned.
+
 ## How it works
 The function `startAwkServer(port)` begins an infinite loop serving all incoming requests on a single thread. Requests are handled in this fashion:
-* Incoming request headers, query params, and endpoint are parsed.   
-* Request body is buffered in memory.  
-* Routing function lookup:
-  * The server checks the routing table for a user defined route function (see `addRoute(method, endpoint, callback)` in `src/core.awk`)  
-  * If no route exists, the server then tries to resolve the endpoint to a file in the static files directory (see `setStaticDirectory(dir)` above)  
-  * If that fails, the route is resolved to a 404 error.
-* The routing function is called. It is assumed that the routing function will set the response headers / status / body
-* The response is compiled and sent.
-* Now we are ready to handle another request.
+- Incoming request headers, query params, and endpoint are parsed.   
+- Request body is buffered in memory.  
+- Routing function lookup:
+  - The server checks the routing table for a user defined route function (see `addRoute(method, endpoint, callback)` in `src/core.awk`)  
+  - If no route exists, the server then tries to resolve the endpoint to a file in the static files directory (see `setStaticDirectory(dir)` above)  
+  - If that fails, the route is resolved to a 404 error.
+- The routing function is called. It is assumed that the routing function will set the response headers / status / body
+- The response is compiled and sent.
+- Now we are ready to handle another request.
 
 This request handling code can be found in `src/http.awk`
 
