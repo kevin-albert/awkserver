@@ -24,14 +24,12 @@ BEGIN {
         \"tstamp_usec\": 1423613555714003\n\
     }\n\
 }"
-
     print "Parsing transaction from: " json
     error = parseJson(json, tx, keys)
     if (error) {
         print error
         print "Unable to parse JSON"
     } else {
-
         print ""
         print "================================================================================"
         print "ID:                  " tx["msg.requestid"]

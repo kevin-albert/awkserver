@@ -1,3 +1,10 @@
+#
+# Do formatted logging with:
+# debug(msg)
+# info(msg)
+# error(msg)
+#
+
 function _initLogs() 
 {
     LogLevelError   = 2
@@ -23,6 +30,7 @@ function _initLogs()
 
     debug("logging started")
 }
+
 
 function _parseLogLevel(logLevel)
 {
@@ -61,6 +69,7 @@ function _log(msg, lvl) {
     }
 }
 
+
 function _enableLogColors() 
 {
     if (!_TPut)
@@ -78,6 +87,7 @@ function _enableLogColors()
     _lvlCol[2] = _R
 }
 
+    
 function _getColorFlag(n)
 {
     _cmd = "tput setaf " n
@@ -86,26 +96,30 @@ function _getColorFlag(n)
     return color
 }
 
+
 function _disableLogColors()
 {
     _R=_b=_G=_g=_P=_W=_lvlCol[0]=_lvlCol[1]=_lvlCol[2]=""
 }
+
 
 function debug(msg)
 {
     _log(msg, LogLevelDebug)
 }
 
+
 function info(msg)
 {
     _log(msg, LogLevelInfo)
 }
+
 
 function error(msg)
 {
     _log(msg, LogLevelError)
 }
 
-# maybe add more? trace(), warn(), critcal(), etc...
+# maybe add more? trace(), warn(), critical(), etc...
 
 

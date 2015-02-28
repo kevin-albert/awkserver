@@ -10,6 +10,7 @@ function home()
     sendFile("samples/numbers/static/index.html")
 }
 
+
 BEGIN {
     info("adding routes for sample app")
     addRoute("GET", "/", "home")

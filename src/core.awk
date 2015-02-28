@@ -2,6 +2,7 @@
 # Exposes functions for handling an incoming request and sending a response
 #
 
+
 #
 # Get a query parameters by its name
 #
@@ -9,6 +10,7 @@ function getRequestParam(name)
 {
     return _requestParams[name]
 }
+
 
 # 
 # Get a request header by its name (case-insensitive)
@@ -18,6 +20,7 @@ function getRequestHeader(name)
     return _requestHeaders[tolower(name)]
 }
 
+
 #
 # Get the incoming request contents
 #
@@ -26,12 +29,14 @@ function getRequestBody()
     return _requestBody
 }
 
+
 #
 # Get the incoming request endpoint
 #
 function getRequestEndpoint() {
     return _endpoint
 }
+
 
 #
 # Set the outgoing response status
@@ -41,6 +46,7 @@ function setResponseStatus(status)
     _responseStatus = status
 }
 
+
 #
 # Set an outgoing response header
 #
@@ -49,6 +55,7 @@ function setResponseHeader(name, value)
     _responseHeaders[name] = value
 }
 
+
 #
 # Set the outgoing response body
 #
@@ -56,6 +63,7 @@ function setResponseBody(body)
 {
     _responseBody = body
 }
+
 
 #
 # Send a file as the outgoing response. This function guesses the content type based on the file extension
@@ -70,36 +78,32 @@ function sendFile(file, headers)
             case /\.html$/:
                 _contentType = "text/html; charset=utf-8"
                 break
-            
             case /\.css$/:
                 _contentType = "text/css"
                 break
-
             case /\.js$/:
                 _contentType = "application/javascript"
                 break
-
             case /\.jpg$/:
             case /\.jpeg$/:
                 _contentType = "image/jpeg"
                 break
-            
             case /\.png$/:
                 _contentType = "image/png"
                 break
-
             case /\.gif$/:
                 _contentType = "image/gif"
                 break
+            case /\.ico$/:
+                _contentType = "image/x-icon"
+                break
         
         }
-
         setResponseHeader("Pragma", "no-cache")
         setResponseHeader("Content-Type", _contentType)
         setResponseBody(_contents)
         return 1
     }
-
     return 0
 }
 
@@ -116,11 +120,13 @@ function getFile(file)
     return _contents
 }
 
+
 function addRoute(method, endpoint, dest)
 {
     info("adding route: " method " " endpoint " -> " dest)
     _routes[method][endpoint] = dest
 }
+
 
 function urlDecode(text)
 {
@@ -148,6 +154,7 @@ function urlDecode(text)
     }
     return _uDecoded
 }
+
 
 function urlEncode(text) {
     

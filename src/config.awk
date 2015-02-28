@@ -8,6 +8,7 @@ function setStaticDirectory(dir)
     _staticFiles = dir
 }
 
+
 function setLogLevel(level)
 {
     info("setting log level to " level)
@@ -18,6 +19,7 @@ function setLogLevel(level)
     }
 }
     
+
 # this gets called when the server starts
 function _initConfig() 
 {

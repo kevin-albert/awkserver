@@ -6,7 +6,7 @@ pidFile=$(dirname $BASH_SOURCE)/../awkserver.pid
 if [ -s $pidFile ]
 then
     pid=$( cat $pidFile )
-    echo "killing $pid"
+    echo "attempting to kill server running with pid $pid"
     kill $pid
     rm $pidFile
 else

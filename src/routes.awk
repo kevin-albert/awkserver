@@ -8,6 +8,7 @@ function noop(query)
     # do nothing
 }
 
+
 function notFound()
 {
     setResponseStatus("404 you've come to the wong place")
@@ -18,11 +19,13 @@ function notFound()
                     "</p></body></html>")
 }
 
+
 function badRequest()
 {
     setResponseStatus("400 wat")
     setResponseBody("Bad request")
 }
+
 
 function redirect(location)
 {

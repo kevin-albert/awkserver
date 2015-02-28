@@ -15,6 +15,7 @@ function startAwkServer(port)
     _listen()
 }
 
+
 #
 # This is where it gets tricky
 #
@@ -85,7 +86,6 @@ function _listen()
             RS = "\r\n"
         }
 
-
         # Figure out how to handle this request
         _route = _routes[_method][_endpoint]
 
@@ -155,9 +155,11 @@ function _listen()
     }
 }
 
+
 function _writeToSocket(line) {
     print line |& _httpService
 }
+
 
 #
 # A security check for static file routing

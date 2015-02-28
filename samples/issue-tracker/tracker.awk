@@ -11,6 +11,7 @@ function home()
     sendFile("samples/issue-tracker/static/index.html")
 }
 
+
 function handleComplaint()
 {
     issueDept = "/dev/null"
@@ -28,6 +29,7 @@ function handleComplaint()
                     "<p>Your feedback is valuable.</p>"\
                     "</body></html>")
 }
+
 
 BEGIN {
     info("adding routes for sample app")

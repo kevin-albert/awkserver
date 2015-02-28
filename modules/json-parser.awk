@@ -33,6 +33,7 @@
 # @author Kevin Albert | salamander.hammerhead@gmail.com
 #
 
+
 function parseJson(_jInput, _jOutputData, _jOutputKeys) 
 {
     delete _jOutputData
@@ -65,7 +66,6 @@ function parseJson(_jInput, _jOutputData, _jOutputKeys)
         # if _jSP > 0, then we've started an object or an array and basic parsing rules apply
         if (_jSP) 
         {
-            
             # Escape character
             if (_jC == "\\") 
             {
@@ -82,12 +82,8 @@ function parseJson(_jInput, _jOutputData, _jOutputKeys)
             # Double quote
             else if (_jC == "\"" && !_jIsEsc) 
             {
-
                 if (!_jIsStr) 
                 {
-
-                    
-
                     # String start
                     _jStrStart = _jIdx + 1
                     _jIsStr = 1
@@ -99,7 +95,6 @@ function parseJson(_jInput, _jOutputData, _jOutputKeys)
                     else {
                         _jIsKey = 0
                     }
-
                 }
                 else {
                     # String end
@@ -122,16 +117,13 @@ function parseJson(_jInput, _jOutputData, _jOutputKeys)
                         _jSetValue(_jOutputData, _jOutputKeys)
                     }
                 }
-                
             }
 
             # Everything else
             else if (!_jIsStr) 
             {
-                
                 switch(_jC) 
                 {
-                    
                     case "{":
                         _jIsKey = 0
                         if (_jTypes[_jSP] == "array")
@@ -243,14 +235,11 @@ function parseJson(_jInput, _jOutputData, _jOutputKeys)
                         }
                     # End of switch
                 }
-                
             }
-
         } 
         
         # Start of input - either an object or an array
         else {
-
             if (_jHasRoot) 
                 return "fail: unexpected character " _jC " at index " _jIdx
 
@@ -277,15 +266,16 @@ function parseJson(_jInput, _jOutputData, _jOutputKeys)
         # End of main loop
         _jIdx++
     }
-
     return 0
 }
+
 
 function _jSkipWhitespace() 
 {
     while (match(_jData[_jIdx+1], /[ \t\r\n]/)) 
         _jIdx++
 }
+
 
 function _jPushStack(_jNewType) 
 {
@@ -294,6 +284,7 @@ function _jPushStack(_jNewType)
     _jKeys[_jSP] = _jNewType == "array" ? "[" : "."
     _jIndices[_jSP] = 0
 }
+
 
 function _jSetValue(_jOutputData, _jOutputKeys) 
 {
@@ -316,6 +307,4 @@ function _jSetValue(_jOutputData, _jOutputKeys)
     _jSkipWhitespace()
     _jIsKey = 0
 }
-
-
 
